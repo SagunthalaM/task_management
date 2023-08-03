@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Task extends Model
 {
     use HasFactory;
+    use Notifiable;
     protected $table = 'tasks';
     protected $fillable = [
         'task',
@@ -20,5 +22,9 @@ class Task extends Model
 
     public function users(){
         return $this->belongsToMany(User::class);
+    }
+    public function getEmailAddresses()
+    {
+        return $this->users->pluck('email')->toArray();
     }
 }

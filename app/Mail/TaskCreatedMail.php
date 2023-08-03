@@ -27,7 +27,7 @@ class TaskCreatedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: ' Your New is created !Checkout here..',
+            subject: ' Daily task update !Checkout here..',
         );
     }
 

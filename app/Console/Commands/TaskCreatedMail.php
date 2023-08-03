@@ -29,11 +29,15 @@ class TaskCreatedMail extends Command
      */
     public function handle()
     {
-        $newTasks = Task::whereDate('created_at',today())->get();
-        $users = User::all();
+        $newTasks = Task::whereDate('created_at',now())->get();
+       // $users = User::all();
        
-        foreach ($users as $user) {
-            Mail::to($user->email)->send(new MailTaskCreatedMail($newTasks) );
+        foreach ($newTasks as $task) {
+            $users = $task->users;
+            foreach($users as $user){
+                Mail::to($user->email)->send(new MailTaskCreatedMail($task) );
+    
+            }
         }
         $this->info('Created task sent email successfully');
     }

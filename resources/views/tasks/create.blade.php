@@ -70,7 +70,8 @@
                             is-invalid
                         @enderror custom-select" id="exampleFormControlSelect" required>
                            <option value="" >Select progress <span style="color:red;">*</span></option>  
-                         <option value="Started" name="progress">Started</option>
+                            <option value="Not Started" name="progress">Not Started</option>
+                             <option value="Started" name="progress">Started</option>
                              <option value="in-process" name="progress">In process</option>
                              <option value="Finished" name="progress">Finished</option>
                         </select>

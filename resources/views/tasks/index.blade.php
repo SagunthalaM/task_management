@@ -50,7 +50,7 @@
             <thead class="table-dark" >
                 <tr>
                     <th>Id</th>
-                    <th>Name</th>
+                    <th>Assigned User</th>
                     <th style="width:600px">Task</th>
                     <th>Progress</th>
                     <th style="width:70px">Position</th>

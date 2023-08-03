@@ -20,7 +20,7 @@ class AdminMiddleware
         if(Auth::user()->role == 'Admin'){
             return $next($request);
         }else{
-            return redirect('user-view')->with('message','Access Denied as you are not Admin');
+            return redirect('user-task')->with('message','Access Denied as you are not Admin');
         }
     }else{
         return redirect()->route('login')->withErrors('message','Login to access the website');

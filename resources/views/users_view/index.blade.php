@@ -23,8 +23,7 @@ $total = TaskController::totalTask();
             <!-- Card body starts  -->
             <div class="card-body" style="">
                 
-            @if (count($tasks) > 0)
-            @foreach ($tasks as $task )
+          
                
                 <div class="form-group row">
                     <label for="name" class="col-sm-2 col-form-label">
@@ -77,16 +76,10 @@ $total = TaskController::totalTask();
                         <input type="text" name="progress" id="progress" class="  btn border" style="margin-left:79px" >
                         <button type="submit" class="btn btn-primary text-white">Update</button>
                         
+                    <a href="{{ URL::to('user-task') }}" class="btn btn-dark">Back</a>
                     </form>
                 </div>
                 <hr style="border-top: 1px solid  green ;width:100%" >
-               
-                    @endforeach     
-                    @else
-                    <div class="container justify-content-center" >
-                        <p>No tasks found for the user.</p>
-                    </div>
-                @endif
             </div>
           </div>
           <!-- Card End -->

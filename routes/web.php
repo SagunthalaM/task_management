@@ -35,7 +35,7 @@ Route::middleware(['auth','is_admin'])->group(function(){
     Route::get('/taks/{id}',[TaskController::class,'show'])->name('tasks.show');
     Route::get('/edit-task/{task}',[TaskController::class,'edit'])->name('tasks.edit');
     Route::post('tasks/update/{id}',[TaskController::class,'update']);
-    Route::delete('tasks/delete/{task}',[TaskController::class,'destroy'])->name('tasks.delete');
+    Route::delete('tasks/delete/{task}',[TaskController::class,'deleteTask'])->name('tasks.delete');
     Route::get('admin/add-user',[App\Http\Controllers\UserController::class,'AddUserIndex'])->name('admin.user.add');
     Route::post('admin/insert-user',[App\Http\Controllers\UserController::class,'InsertUser']);
     Route::get('/users/{id}',[UserController::class,'getUser'])->name('admin.user.get_user');
@@ -47,8 +47,6 @@ Route::middleware(['auth','is_admin'])->group(function(){
 });
 
 //user view
-
-Route::get('user-view',[TaskController::class,'UserView'])->name('users_view.index')->middleware('auth');
-
-
+Route::get('/user-view/{id}',[TaskController::class,'UserView'])->name('users_view.index')->middleware('auth');
 Route::put('/user-view/{taskId}/update-progress', [TaskController::class, 'updateProgress'])->name('tasks.update-progress')->middleware('auth');
+Route::get('user-task',[TaskController::class,'showIndividualUsersTask'])->name('users_view.show')->middleware('auth');

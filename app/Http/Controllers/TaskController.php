@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendTaskCreatedEmail;
 use App\Models\Task;
 use App\Models\User;
+use App\Notifications\TaskDeletionNotification;
+use App\Notifications\taskUpdationNotification;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 class TaskController extends Controller
 {
@@ -89,6 +93,8 @@ class TaskController extends Controller
                     ]
                     );
                     $task->users()->sync($request->input('users'));
+                    SendTaskCreatedEmail::dispatch($task);
+                   // return response()->json($task,200);
                     return redirect('/tasks')->with('success','Task Created Successfully');
             } catch (\Exception $e) {
                 return 'Something went wrong: ' . $e->getMessage();
@@ -124,11 +130,6 @@ class TaskController extends Controller
         }
     }
     
-    
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -152,6 +153,13 @@ class TaskController extends Controller
             $edit->end_date = $request->input('end_date');   
             $edit->save();
             $edit->users()->sync($request->input('users'));
+              $emailAddresses = $edit->getEmailAddresses();
+
+                // Send notification to each user separately
+                foreach ($emailAddresses as $email) {
+                    Notification::route('mail', $email)->notify(new TaskUpdationNotification($edit));
+                }
+
             return redirect('tasks')->with('success','Task Updated Successfully');
         } catch (\Exception $e) {
             return 'Something went wrong: ' . $e->getMessage();
@@ -161,26 +169,39 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy( $id)
+  
+    public function deleteTask($id)
     {
-        $delete = DB::table('tasks')->where('id',$id)->delete();
-        if($delete)
-        {
-            Session::flash('danger', 'User deleted successfully!');
-            return back();
-        }
-        else{
-            echo "Something is wrong";
+        try {
+            // Get the task and its associated users before deletion
+            $task = Task::with('users')->findOrFail($id);
+            $users = $task->users;
+
+            // Delete the task
+            $deleted = $task->delete();
+
+            if ($deleted) {
+                // Send notification to each user associated with the deleted task
+                foreach ($users as $user) {
+                    $user->notify(new TaskDeletionNotification($task));
+                }
+
+                return redirect('tasks')->with('success', 'Task Deleted Successfully');
+            } else {
+                return redirect('tasks')->with('error', 'Failed to delete the task.');
+            }
+        } catch (\Exception $e) {
+            return 'Something went wrong: ' . $e->getMessage();
         }
     }
+
     
-    public function UserView(){
+    public function UserView(Request $request,$id){
         
         $user = Auth::user();
-        
-        $tasks = $user->tasks()->get();
+         $task = Task::with('users')->find($id);
         //dd($user);
-        return view('users_view.index',compact('tasks'));
+        return view('users_view.index',compact('task'));
     }
     
     public function updateProgress(Request $request, $taskId)
@@ -194,11 +215,6 @@ class TaskController extends Controller
         if (!$task) {
             abort(404, 'Task not found');
         }
-
-        // // Check if the authenticated user is the owner of the task
-        // if ($task->user_id !== Auth::id()) {
-        //     abort(403, 'Unauthorized action');
-        // }
         if (!$task->users->contains(Auth::user())) {
             abort(403, 'Unauthorized action');
         }
@@ -213,9 +229,39 @@ class TaskController extends Controller
         $task->save();
 
         // Redirect back or return a JSON response as needed
-        return redirect('user-view')->with('success', 'Progress updated successfully');
+        return back()->with('success', 'Progress updated successfully');
     }
 
+    public function showIndividualUsersTask(Request $request)
+    {
+        // try {
+        //     $user = Auth::user();
+        
+        //     $tasks = $user->tasks()->get();
+        //     //dd($user);
+        //     return view('users_view.show',compact('tasks')); 
+           
+        // } catch (ModelNotFoundException $exception) {
+        //     return response()->view('errors.user_not_found', [], 404);
+        // }
+        if($request->ajax()){
+            $user = Auth::user();
+             $tasks = $user->tasks()->get();
+            return DataTables::of($tasks)
+            ->addIndexColumn()
+            ->addColumn('actions',function($task){
+                return '
+                <a href="'.route('users_view.index', $task->id).'"
+                class="text-decoration-none me-1" style="color:black;" >
+               <i class="fa-solid fa-eye fs-5"></i> 
+               </a>';
+            })->rawColumns(['actions'])
+            ->make(true);
+            
+        }
+        return view('users_view.show');
+
+    }
     static function totalTask(){
         
       //  $userId = Auth::id();

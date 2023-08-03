@@ -90,13 +90,15 @@
                                 </li>
                             @endif
                         @else
-                         <li class="mt-2 me-3"> <p> Number of Tasks <span class="bg-dark  btn pt-1 pb-1 text-white">{{ $total }}</span></p ></li>
-                          <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                      <li class="nav-item me-5 ">
+                            <a id="navbar" class="text-dark text-decoration-none" href="#" role="button"  aria-haspopup="true" aria-expanded="false" v-pre>
                                 {{ Auth::user()->name }}
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ route('logout') }}"
+                            
+                        </li>
+                        <li>
+                            <div class="nav-item" aria-labelledby="navbarDropdown">
+                                <a class="text-dark text-decoration-none" href="{{ route('logout') }}"
                                    onclick="event.preventDefault();
                                                  document.getElementById('logout-form').submit();">
                                     {{ __('Logout') }}
